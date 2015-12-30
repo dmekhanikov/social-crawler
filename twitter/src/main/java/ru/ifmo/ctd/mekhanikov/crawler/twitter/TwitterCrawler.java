@@ -42,23 +42,19 @@ public class TwitterCrawler {
         LOG.info("Requests left: " + rateLimitStatus.getRemaining());
     }
 
-    private List<Long> getFriends(long userId) {
+    private List<Long> getFriends(long userId) throws Exception {
         LOG.info("Getting friends list of user " + userId);
         List<Long> friends = new ArrayList<>();
         long cursor = -1;
         while (cursor != 0) {
-            try {
-                checkRate();
-                LOG.info(String.format("Sending request. userId=%d, cursor=%d", userId, cursor));
-                IDs result = twitter.getFriendsIDs(userId, cursor);
-                LOG.info("Response received");
-                for (long id : result.getIDs()) {
-                    friends.add(id);
-                }
-                cursor = result.getNextCursor();
-            } catch (TwitterException e) {
-                e.printStackTrace();
+            checkRate();
+            LOG.info(String.format("Sending request. userId=%d, cursor=%d", userId, cursor));
+            IDs result = twitter.getFriendsIDs(userId, cursor);
+            LOG.info("Response received");
+            for (long id : result.getIDs()) {
+                friends.add(id);
             }
+            cursor = result.getNextCursor();
         }
         return friends;
     }
@@ -70,9 +66,13 @@ public class TwitterCrawler {
                 if (dao.contains(MongoDAO.Collection.TWITTER, userId)) {
                     LOG.info("User " + userId + " is already in the database");
                 } else {
-                    List<Long> friends = getFriends(userId);
-                    LOG.info("Storing result into the database");
-                    dao.insert(MongoDAO.Collection.TWITTER, userId, friends);
+                    try {
+                        List<Long> friends = getFriends(userId);
+                        LOG.info("Storing result into the database");
+                        dao.insert(MongoDAO.Collection.TWITTER, userId, friends);
+                    } catch (Exception e) {
+                        LOG.debug("Failed to get friends of user " + userId + ": " + e.getMessage());
+                    }
                 }
             }
         }
