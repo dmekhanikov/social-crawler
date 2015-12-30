@@ -3,6 +3,7 @@ package ru.ifmo.ctd.mekhanikov.crawler.twitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.ifmo.ctd.mekhanikov.crawler.Config;
+import ru.ifmo.ctd.mekhanikov.crawler.MongoDAO;
 import twitter4j.*;
 
 import java.io.BufferedReader;
@@ -19,6 +20,7 @@ public class TwitterCrawler {
 
     private final Twitter twitter;
     private final Config config = Config.getInstance();
+    private final MongoDAO dao = MongoDAO.getInstance();
 
     private TwitterCrawler() throws IOException {
         config.load();
@@ -65,7 +67,13 @@ public class TwitterCrawler {
         try (BufferedReader br = new BufferedReader(new FileReader(config.getInputFile()))) {
             for (String line = br.readLine(); line != null; line = br.readLine()) {
                 long userId = Long.parseLong(line);
-                System.out.println(getFriends(userId));
+                if (dao.contains(MongoDAO.Collection.TWITTER, userId)) {
+                    LOG.info("User " + userId + " is already in the database");
+                } else {
+                    List<Long> friends = getFriends(userId);
+                    LOG.info("Storing result into the database");
+                    dao.insert(MongoDAO.Collection.TWITTER, userId, friends);
+                }
             }
         }
     }

@@ -24,6 +24,9 @@ public class Config {
     }
 
     public Properties load() throws IOException {
+        if (properties != null) {
+            return properties;
+        }
         LOG.info("Loading config from file " + CONFIG_FILE);
         this.properties= new Properties();
         this.properties.load(new FileReader(CONFIG_FILE));
