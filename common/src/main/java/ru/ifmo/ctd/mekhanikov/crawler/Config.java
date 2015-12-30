@@ -13,13 +13,20 @@ public class Config {
     private static final String INPUT_FILE_PROPERTY = "input";
 
     private static final Logger LOG = LoggerFactory.getLogger(Config.class);
+    private static final Config INSTANCE = new Config();
+
+    private Properties properties;
 
     private Config() {}
 
-    public static Properties load() throws IOException {
+    public static Config getInstance() {
+        return INSTANCE;
+    }
+
+    public Properties load() throws IOException {
         LOG.info("Loading config from file " + CONFIG_FILE);
-        Properties properties = new Properties();
-        properties.load(new FileReader(CONFIG_FILE));
+        this.properties= new Properties();
+        this.properties.load(new FileReader(CONFIG_FILE));
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
@@ -28,7 +35,11 @@ public class Config {
         return properties;
     }
 
-    public static String getInputFile() {
+    public String getInputFile() {
         return System.getProperty(INPUT_FILE_PROPERTY, "input.txt");
+    }
+
+    public String getProperty(String key) {
+        return (String) properties.get(key);
     }
 }

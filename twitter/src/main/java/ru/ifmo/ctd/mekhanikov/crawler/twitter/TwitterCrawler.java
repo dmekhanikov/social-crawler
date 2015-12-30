@@ -18,9 +18,10 @@ public class TwitterCrawler {
     private static final int MIN_SLEEP_TIME = 5;
 
     private final Twitter twitter;
+    private final Config config = Config.getInstance();
 
     private TwitterCrawler() throws IOException {
-        Config.load();
+        config.load();
         this.twitter = TwitterFactory.getSingleton();
         LOG.info("Twitter service initialized");
     }
@@ -61,7 +62,7 @@ public class TwitterCrawler {
     }
 
     private void doMain() throws IOException {
-        try (BufferedReader br = new BufferedReader(new FileReader(Config.getInputFile()))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(config.getInputFile()))) {
             for (String line = br.readLine(); line != null; line = br.readLine()) {
                 long userId = Long.parseLong(line);
                 System.out.println(getFriends(userId));
