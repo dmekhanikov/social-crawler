@@ -25,14 +25,12 @@ public class MongoDAO {
 
     private final MongoDatabase db;
 
-    private MongoDAO() throws IOException {
-        Config config = Config.getInstance();
-        config.load();
-        String host = config.getProperty(HOST_PROPERTY);
-        int port = Integer.parseInt(config.getProperty(PORT_PROPERTY));
-        String database = config.getProperty(DATABASE_PROPERTY);
-        String username = config.getProperty(USERNAME_PROPERTY);
-        String password = config.getProperty(PASSWORD_PROPERTY);
+    private MongoDAO() {
+        String host = System.getProperty(HOST_PROPERTY);
+        int port = Integer.parseInt(System.getProperty(PORT_PROPERTY));
+        String database = System.getProperty(DATABASE_PROPERTY);
+        String username = System.getProperty(USERNAME_PROPERTY);
+        String password = System.getProperty(PASSWORD_PROPERTY);
         MongoClient mongoClient;
         if (!username.isEmpty() && !password.isEmpty()) {
             MongoCredential credential = MongoCredential.createCredential(username, database, password.toCharArray());
