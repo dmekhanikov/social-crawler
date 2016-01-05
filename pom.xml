@@ -11,6 +11,7 @@
     <modules>
         <module>twitter</module>
         <module>core</module>
+        <module>foursquare</module>
     </modules>
 
     <properties>
