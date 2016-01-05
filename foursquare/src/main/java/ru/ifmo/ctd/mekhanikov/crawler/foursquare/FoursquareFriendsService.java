@@ -21,10 +21,14 @@ public class FoursquareFriendsService implements FriendsService {
     private static final String CLIENT_ID_PROPERTY = "foursquare.client_id";
     private static final String CLIENT_SECRET_PROPERTY = "foursquare.client_secret";
     private static final String FOURSQUARE_BASE_URL = "https://api.foursquare.com/v2";
+    private static final String REMAINING_HEADER = "X-RateLimit-Remaining";
+    private static final String RESET_TIMESTAMP_HEADER = "X-RateLimit-Reset";
 
     private final String clientId;
     private final String clientSecret;
     private final FoursquareService service;
+    private int requestsLeft = -1;
+    private int secondsUntilReset = -1;
 
     public FoursquareFriendsService() {
         this.clientId = System.getProperty(CLIENT_ID_PROPERTY);
@@ -41,19 +45,41 @@ public class FoursquareFriendsService implements FriendsService {
         Call<ResponseBody> call = service.listFriends(userId, clientId, clientSecret);
         Response<ResponseBody> response = call.execute();
         LOG.info("Response received");
+        requestsLeft = Integer.parseInt(response.headers().get(REMAINING_HEADER));
+        if (requestsLeft == 0) {
+            secondsUntilReset = secondsToTimestamp(Long.parseLong(response.headers().get(RESET_TIMESTAMP_HEADER)));
+        }
         if (response.isSuccess()) {
-            List<Long> friends = new ArrayList<>();
-            JSONObject json = new JSONObject(response.body().string());
-            JSONArray items = json.getJSONObject("response")
-                    .getJSONObject("friends")
-                    .getJSONArray("items");
-            for (Object item : items) {
-                JSONObject jsonFriend = (JSONObject) item;
-                friends.add(jsonFriend.getLong("id"));
-            }
-            return friends;
+            return parseFriendsList(response.body().string());
         } else {
             throw new IllegalStateException(response.message());
         }
+    }
+
+    private int secondsToTimestamp(long timestamp) {
+        return (int) (timestamp - System.currentTimeMillis() / 1000);
+    }
+
+    private List<Long> parseFriendsList(String response) {
+        List<Long> friends = new ArrayList<>();
+        JSONObject json = new JSONObject(response);
+        JSONArray items = json.getJSONObject("response")
+                .getJSONObject("friends")
+                .getJSONArray("items");
+        for (Object item : items) {
+            JSONObject jsonFriend = (JSONObject) item;
+            friends.add(jsonFriend.getLong("id"));
+        }
+        return friends;
+    }
+
+    @Override
+    public int getRequestsLeft() {
+        return requestsLeft;
+    }
+
+    @Override
+    public int getSecondsUntilReset() {
+        return secondsUntilReset;
     }
 }

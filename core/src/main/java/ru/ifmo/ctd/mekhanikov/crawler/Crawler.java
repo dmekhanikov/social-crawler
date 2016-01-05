@@ -12,6 +12,7 @@ import java.util.List;
 public class Crawler {
 
     private static final Logger LOG = LoggerFactory.getLogger(Crawler.class);
+    private static final int MIN_SLEEP_TIME = 5;
 
     private final FriendsService friendsService;
     private final MongoDAO dao;
@@ -28,16 +29,31 @@ public class Crawler {
                 if (dao.contains(outputCollection, userId)) {
                     LOG.info("User " + userId + " is already in the database");
                 } else {
-                    try {
-                        List<Long> friends = friendsService.getFriends(userId);
-                        LOG.info("Storing result into the database");
-                        dao.insert(outputCollection, userId, friends);
-                    } catch (Exception e) {
-                        LOG.info("Failed to get friends of user " + userId + ": " + e.getMessage());
-                    }
+                    processUser(userId, outputCollection);
                 }
             }
         }
     }
 
+    private void processUser(long userId, MongoDAO.Collection outputCollection) {
+        boolean rateError = false;
+        do {
+            try {
+                List<Long> friends = friendsService.getFriends(userId);
+                LOG.info("Storing result into the database");
+                dao.insert(outputCollection, userId, friends);
+            } catch (Exception e) {
+                if (friendsService.getRequestsLeft() == 0) {
+                    int waitingTime = Math.max(friendsService.getSecondsUntilReset() + 1, MIN_SLEEP_TIME);
+                    LOG.info("No requests left. Waiting " + waitingTime + " seconds");
+                    try {
+                        Thread.sleep(waitingTime * 1000);
+                    } catch (InterruptedException ignore) {}
+                    rateError = true;
+                } else {
+                    LOG.info("Failed to get friends of user " + userId + ": " + e.getMessage());
+                }
+            }
+        } while (rateError);
+    }
 }

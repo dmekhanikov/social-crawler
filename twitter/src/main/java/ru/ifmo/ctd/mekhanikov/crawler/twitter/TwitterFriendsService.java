@@ -12,7 +12,6 @@ public class TwitterFriendsService implements FriendsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TwitterFriendsService.class);
     private static final String FRIENDS_ENDPOINT = "/friends/ids";
-    private static final int MIN_SLEEP_TIME = 5;
 
     private final Twitter twitter;
 
@@ -21,27 +20,12 @@ public class TwitterFriendsService implements FriendsService {
         LOG.info("Twitter service initialized");
     }
 
-    private void checkRate() throws TwitterException {
-        RateLimitStatus rateLimitStatus = twitter.getRateLimitStatus().get(FRIENDS_ENDPOINT);
-        while (rateLimitStatus.getRemaining() == 0) {
-            LOG.info("No requests left. Sleep " + rateLimitStatus.getSecondsUntilReset() + " seconds");
-            try {
-                Thread.sleep(Math.max(rateLimitStatus.getSecondsUntilReset() + 1, MIN_SLEEP_TIME) * 1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            rateLimitStatus = twitter.getRateLimitStatus().get(FRIENDS_ENDPOINT);
-        }
-        LOG.info("Requests left: " + rateLimitStatus.getRemaining());
-    }
-
     @Override
     public List<Long> getFriends(long userId) throws Exception {
         LOG.info("Getting friends list of user " + userId);
         List<Long> friends = new ArrayList<>();
         long cursor = -1;
         while (cursor != 0) {
-            checkRate();
             LOG.info(String.format("Sending request. userId=%d, cursor=%d", userId, cursor));
             IDs result = twitter.getFriendsIDs(userId, cursor);
             LOG.info("Response received");
@@ -51,5 +35,29 @@ public class TwitterFriendsService implements FriendsService {
             cursor = result.getNextCursor();
         }
         return friends;
+    }
+
+    @Override
+    public int getRequestsLeft() {
+        try {
+            return getRateLimitStatus().getRemaining();
+        } catch (TwitterException e) {
+            LOG.info("Failed to get rate limit status: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    @Override
+    public int getSecondsUntilReset() {
+        try {
+            return getRateLimitStatus().getSecondsUntilReset();
+        } catch (TwitterException e) {
+            LOG.info("Failed to get rate limit status: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    private RateLimitStatus getRateLimitStatus() throws TwitterException {
+        return twitter.getRateLimitStatus().get(FRIENDS_ENDPOINT);
     }
 }
