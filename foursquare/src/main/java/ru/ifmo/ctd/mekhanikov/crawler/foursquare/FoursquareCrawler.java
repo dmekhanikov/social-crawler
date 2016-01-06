@@ -5,7 +5,6 @@ import ru.ifmo.ctd.mekhanikov.crawler.Crawler;
 import ru.ifmo.ctd.mekhanikov.crawler.FriendsService;
 import ru.ifmo.ctd.mekhanikov.crawler.MongoDAO;
 
-import java.io.File;
 import java.io.IOException;
 
 public class FoursquareCrawler {
@@ -14,6 +13,6 @@ public class FoursquareCrawler {
         config.load();
         FriendsService friendsService = new FoursquareFriendsService();
         Crawler crawler = new Crawler(friendsService);
-        crawler.crawl(new File(config.getInputFile()), MongoDAO.Collection.FOURSQUARE);
+        crawler.crawl(config.getInputFile(), MongoDAO.Collection.FOURSQUARE);
     }
 }

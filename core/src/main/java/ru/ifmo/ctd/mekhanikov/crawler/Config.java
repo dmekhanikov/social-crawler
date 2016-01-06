@@ -3,6 +3,7 @@ package ru.ifmo.ctd.mekhanikov.crawler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
@@ -38,8 +39,13 @@ public class Config {
         return properties;
     }
 
-    public String getInputFile() {
-        return System.getProperty(INPUT_FILE_PROPERTY, "input.txt");
+    public File getInputFile() {
+        String inputFileName = System.getProperty(INPUT_FILE_PROPERTY);
+        if (inputFileName != null) {
+            return new File(inputFileName);
+        } else {
+            return null;
+        }
     }
 
     public String getProperty(String key) {
