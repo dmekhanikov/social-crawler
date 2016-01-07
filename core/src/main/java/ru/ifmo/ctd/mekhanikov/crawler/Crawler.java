@@ -55,6 +55,7 @@ public class Crawler {
                     rateError = true;
                 } else {
                     LOG.info("Failed to get friends of user " + userId + ": " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         } while (rateError);
