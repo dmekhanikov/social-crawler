@@ -12,6 +12,7 @@
         <module>twitter</module>
         <module>core</module>
         <module>foursquare</module>
+        <module>instagram</module>
     </modules>
 
     <properties>

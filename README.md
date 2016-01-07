@@ -1,5 +1,5 @@
 # Social Networks Crawler
-This application is intended to collect information about social graph of users of various social networks, namely Twitter, Instagram, Facebook and Foursquare. Currently only Twitter and Foursquare are supported. All collected information is saved in MongoDB.
+This application is intended to collect information about social graph of users of various social networks, namely Twitter, Instagram, Facebook and Foursquare. Currently Facebook is not supported. All collected information is saved in MongoDB.
 
 ## Build
 It is written in Java 8 using Apache Maven build system. To build it you should have them installed on your computer. Run ```mvn clean package``` in the project directory to assemble artifacts. Executable jars will appear in target directories in corresponding modules.
@@ -27,6 +27,9 @@ oauth.accessTokenSecret=
 # Foursquare
 foursquare.client_id=
 foursquare.client_secret=
+
+# Instagram
+instagram.access_token=
 ```
 
 Run command example:
