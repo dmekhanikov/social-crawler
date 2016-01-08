@@ -11,7 +11,6 @@ import java.util.Properties;
 
 public class Config {
     private static final String CONFIG_FILE = "crawler.properties";
-    private static final String INPUT_FILE_PROPERTY = "input";
 
     private static final Logger LOG = LoggerFactory.getLogger(Config.class);
     private static final Config INSTANCE = new Config();
@@ -37,15 +36,6 @@ public class Config {
             System.setProperty(key, value);
         }
         return properties;
-    }
-
-    public File getInputFile() {
-        String inputFileName = System.getProperty(INPUT_FILE_PROPERTY);
-        if (inputFileName != null) {
-            return new File(inputFileName);
-        } else {
-            return null;
-        }
     }
 
     public String getProperty(String key) {

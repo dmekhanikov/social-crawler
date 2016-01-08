@@ -4,6 +4,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Set;
@@ -41,7 +42,19 @@ public class Runner {
         }
     }
 
-    private void run() throws TargetCreationException, IOException {
+    private File getInputFile(String... args) {
+        if (args.length > 1) {
+            System.err.println("Usage:\n\tjava -jar <jar file> [input file]");
+            System.exit(1);
+        }
+        if (args.length == 1) {
+            return new File(args[0]);
+        } else {
+            return null;
+        }
+    }
+
+    private void run(String... args) throws TargetCreationException, IOException {
         Config config = Config.getInstance();
         config.load();
         Class<?> targetClass = findTarget();
@@ -49,10 +62,10 @@ public class Runner {
         FriendsService friendsService = createFriendsService(targetClass);
         String outputCollection = targetClass.getAnnotation(Target.class).value();
         Crawler crawler = new Crawler(friendsService);
-        crawler.crawl(config.getInputFile(), outputCollection);
+        crawler.crawl(getInputFile(args), outputCollection);
     }
 
     public static void main(String... args) throws Exception {
-        new Runner().run();
+        new Runner().run(args);
     }
 }
