@@ -35,3 +35,6 @@ instagram.access_token=
 Run command example:
 
 ```java -Dinput=userList.txt -jar twitter.jar```
+
+## Making your own crawler
+The core module is designed to let you create your own modules collecting information from your favorite social network. To do that you should only implement the __FriendsService__ interface and mark your class with the __@Target__ annotation. Name of the result collection in MongoDB should be specified as an argument of this annotation. To start crawling run the __main__ method of the __ru.ifmo.ctd.mekhanikov.crawler.Runner__ class. It will find your __FriendsService__ and start the process.

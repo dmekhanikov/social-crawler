@@ -3,11 +3,13 @@ package ru.ifmo.ctd.mekhanikov.crawler.twitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.ifmo.ctd.mekhanikov.crawler.FriendsService;
+import ru.ifmo.ctd.mekhanikov.crawler.Target;
 import twitter4j.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Target("twitter")
 public class TwitterFriendsService implements FriendsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TwitterFriendsService.class);

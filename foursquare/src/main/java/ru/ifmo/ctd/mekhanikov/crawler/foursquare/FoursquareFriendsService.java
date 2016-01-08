@@ -9,11 +9,13 @@ import retrofit.Call;
 import retrofit.Response;
 import retrofit.Retrofit;
 import ru.ifmo.ctd.mekhanikov.crawler.FriendsService;
+import ru.ifmo.ctd.mekhanikov.crawler.Target;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Target("foursquare")
 public class FoursquareFriendsService implements FriendsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(FoursquareFriendsService.class);

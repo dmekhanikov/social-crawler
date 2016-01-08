@@ -9,11 +9,13 @@ import retrofit.Call;
 import retrofit.Response;
 import retrofit.Retrofit;
 import ru.ifmo.ctd.mekhanikov.crawler.FriendsService;
+import ru.ifmo.ctd.mekhanikov.crawler.Target;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Target("instagram")
 public class InstagramFriendsService implements FriendsService {
     private static final Logger LOG = LoggerFactory.getLogger(InstagramFriendsService.class);
 

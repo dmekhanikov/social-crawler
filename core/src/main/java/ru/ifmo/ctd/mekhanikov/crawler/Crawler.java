@@ -19,7 +19,7 @@ public class Crawler {
         this.dao = MongoDAO.getInstance();
     }
 
-    public void crawl(File inputFile, MongoDAO.Collection outputCollection) throws IOException {
+    public void crawl(File inputFile, String outputCollection) throws IOException {
         Reader reader;
         if (inputFile != null) {
             reader = new FileReader(inputFile);
@@ -38,7 +38,7 @@ public class Crawler {
         }
     }
 
-    private void processUser(long userId, MongoDAO.Collection outputCollection) {
+    private void processUser(long userId, String outputCollection) {
         boolean rateError = false;
         do {
             try {

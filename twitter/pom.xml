@@ -48,7 +48,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>ru.ifmo.ctd.mekhanikov.crawler.twitter.TwitterCrawler</mainClass>
+                                    <mainClass>ru.ifmo.ctd.mekhanikov.crawler.Runner</mainClass>
                                 </transformer>
                             </transformers>
                             <createDependencyReducedPom>false</createDependencyReducedPom>

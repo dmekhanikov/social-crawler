@@ -49,28 +49,11 @@ public class MongoDAO {
         return INSTANCE;
     }
 
-    public void insert(Collection collection, long userId, List<Long> friends) {
-        db.getCollection(collection.toString()).insertOne(new Document("userId", userId).append("friends", friends));
+    public void insert(String collection, long userId, List<Long> friends) {
+        db.getCollection(collection).insertOne(new Document("userId", userId).append("friends", friends));
     }
 
-    public boolean contains(Collection collection, long userId) {
-        return db.getCollection(collection.toString()).find(new Document("userId", userId)).first() != null;
-    }
-
-    public enum Collection {
-        TWITTER("twitter"),
-        INSTAGRAM("instagram"),
-        FOURSQUARE("foursquare");
-
-        private String name;
-
-        Collection(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
+    public boolean contains(String collection, long userId) {
+        return db.getCollection(collection).find(new Document("userId", userId)).first() != null;
     }
 }
