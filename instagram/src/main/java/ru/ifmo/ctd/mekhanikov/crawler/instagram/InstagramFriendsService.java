@@ -22,6 +22,7 @@ public class InstagramFriendsService implements FriendsService {
     private static final String INSTAGRAM_BASE_URL = "https://api.instagram.com/";
     private static final String ACCESS_TOKEN_PROPERTY = "instagram.access_token";
     private static final String REMAINING_HEADER = "X-Ratelimit-Remaining";
+    private static final int TOO_MANY_REQUESTS_CODE = 429;
 
     private final String accessToken;
     private final InstagramService service;
@@ -46,7 +47,11 @@ public class InstagramFriendsService implements FriendsService {
             Call<ResponseBody> call = service.getFollows(userId, cursor, accessToken);
             Response<ResponseBody> response = call.execute();
             LOG.info("Response received");
-            requestsLeft = Integer.parseInt(response.headers().get(REMAINING_HEADER));
+            if (response.code() == TOO_MANY_REQUESTS_CODE) {
+                requestsLeft = 0;
+            } else {
+                requestsLeft = Integer.parseInt(response.headers().get(REMAINING_HEADER));
+            }
             if (response.isSuccess()) {
                 String responseString = response.body().string();
                 parseFollowsList(responseString, friends);
