@@ -39,8 +39,9 @@ public class Crawler {
     }
 
     private void processUser(long userId, String outputCollection) {
-        boolean rateError = false;
+        boolean rateError;
         do {
+            rateError = false;
             try {
                 List<Long> friends = friendsService.getFriends(userId);
                 LOG.info("Storing result into the database");
