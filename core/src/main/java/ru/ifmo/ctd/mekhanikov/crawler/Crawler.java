@@ -19,21 +19,12 @@ public class Crawler {
         this.dao = MongoDAO.getInstance();
     }
 
-    public void crawl(File inputFile, String outputCollection) throws IOException {
-        Reader reader;
-        if (inputFile != null) {
-            reader = new FileReader(inputFile);
-        } else {
-            reader = new InputStreamReader(System.in);
-        }
-        try (BufferedReader br = new BufferedReader(reader)) {
-            for (String line = br.readLine(); line != null; line = br.readLine()) {
-                long userId = Long.parseLong(line);
-                if (dao.contains(outputCollection, userId)) {
-                    LOG.info("User " + userId + " is already in the database");
-                } else {
-                    processUser(userId, outputCollection);
-                }
+    public void crawl(List<Long> ids, String outputCollection) throws IOException {
+        for (Long userId : ids) {
+            if (dao.contains(outputCollection, userId)) {
+                LOG.info("User " + userId + " is already in the database");
+            } else {
+                processUser(userId, outputCollection);
             }
         }
     }
