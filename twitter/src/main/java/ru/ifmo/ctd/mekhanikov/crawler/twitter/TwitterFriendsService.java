@@ -14,6 +14,7 @@ import ru.ifmo.ctd.mekhanikov.crawler.Target;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Target("twitter")
 public class TwitterFriendsService implements FriendsService {
@@ -21,21 +22,16 @@ public class TwitterFriendsService implements FriendsService {
     private static final Logger LOG = LoggerFactory.getLogger(TwitterFriendsService.class);
     private static final String TWITTER_BASE_URL = "https://twitter.com/";
     private static final String AUTH_TOKEN_PROPERTY = "twitter.auth_token";
-    private static final String REQUESTS_PER_HOUR_PROPERTY = "twitter.req_per_hour";
 
     private TwitterService twitterService;
     private String authToken;
     private NamesService namesService;
-    private int requestsPerHour;
-    private int requestsLeft;
-    private long lastResetTime;
+    private Random random;
 
     public TwitterFriendsService(NamesService namesService) {
         this.namesService = namesService;
         this.authToken = System.getProperty(AUTH_TOKEN_PROPERTY);
-        this.requestsPerHour = Integer.parseInt(System.getProperty(REQUESTS_PER_HOUR_PROPERTY));
-        this.requestsLeft = this.requestsPerHour;
-        this.lastResetTime = System.currentTimeMillis();
+        this.random = new Random(System.currentTimeMillis());
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(TWITTER_BASE_URL)
                 .client(createOkHttpClient())
@@ -70,7 +66,6 @@ public class TwitterFriendsService implements FriendsService {
             Call<UsersResponse> call = twitterService.listFriends(userName, maxPosition);
             Response<UsersResponse> response = call.execute();
             LOG.info("Response received");
-            decRequests();
             if (response.isSuccess()) {
                 UsersResponse responseBody = response.body();
                 List<Long> receivedUsers = parseUsers(responseBody.getItemsHtml());
@@ -80,8 +75,12 @@ public class TwitterFriendsService implements FriendsService {
                 hasMoreItems = responseBody.isHasMoreItems();
                 maxPosition = responseBody.getMinPosition();
             } else {
+                if (!response.message().equals("Not Found")) {
+                    Thread.sleep(30000 + random.nextInt(90000));
+                }
                 throw new IllegalStateException(response.message());
             }
+            Thread.sleep(random.nextInt(1000));
         }
         return friends;
     }
@@ -107,26 +106,11 @@ public class TwitterFriendsService implements FriendsService {
 
     @Override
     public int getRequestsLeft() {
-        if (getSecondsUntilReset() == 0) {
-             resetRequests();
-        }
-        return requestsLeft;
+        return 1;
     }
 
     @Override
     public int getSecondsUntilReset() {
-        int secondsPassed = (int) ((System.currentTimeMillis() - lastResetTime) / 1000);
-        return Math.max(0, 3600 - secondsPassed);
-    }
-
-    private void resetRequests() {
-        requestsLeft = requestsPerHour;
-        lastResetTime = System.currentTimeMillis();
-    }
-
-    private void decRequests() {
-        if (requestsLeft > 0) {
-            requestsLeft--;
-        }
+        return 0;
     }
 }
