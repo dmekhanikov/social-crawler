@@ -13,6 +13,7 @@
         <module>core</module>
         <module>foursquare</module>
         <module>instagram</module>
+        <module>facebook</module>
     </modules>
 
     <properties>
